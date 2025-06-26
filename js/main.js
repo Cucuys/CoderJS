@@ -3,7 +3,7 @@ const A320 = {longitudBase: 2100}
 const B737 = {longitudBase: 2200}
 const A350 = {longitudBase: 2600}
 
-//ARRAY DE LOS MODELOS ACTUALES
+//ARRAY DE LOS MODELOS ACTUALES DE AVIONES
 const aviones = [
     {modelo: "A320", longitudBase: 2100},
     {modelo: "B737", longitudBase: 2200},
