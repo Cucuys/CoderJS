@@ -5,84 +5,128 @@ const A350 = {longitudBase: 2600}
 
 //ARRAY DE LOS MODELOS ACTUALES DE AVIONES
 const aviones = [
-    {modelo: "A320", longitudBase: 2100},
-    {modelo: "B737", longitudBase: 2200},
-    {modelo: "A350", longitudBase: 2600}
+    {modelo: 'A320', pistaBase: 2100},
+    {modelo: 'B737', pistaBase: 2200},
+    {modelo: 'A350', pistaBase: 2600}
 ]
 
-//FUNCIONES
-//ESTA FUNCION MUESTRA LOS MODELOS DE AVIONE DISPONIBLE, NO LA HAGO CON SWITCH PORQUE SINO CADA VEZ QUE AGREGO UN AVION NUEVO AL ARRAY TENGO QUE CAMBIAR EL SWITCH TAMBIEN
-function mostrarModelos(aviones) {
-    let lista = "Modelos disponible:\n"
-    for (let i = 0; i < aviones.length; i++)
-        lista += i + ". " + aviones[i].modelo + "\n"
-        return lista
-}
 
-//FUNCION PARA CALCULAR EL EXTRA DE PISTA SEGUN PESO, A PARTIR DE LOS 70.000KG SUMA 0,1% SOBRE PISTA BASE
-function ajustarPorPeso(base, peso) {
-    const pesoReferencia = 70000
-    if (peso <= pesoReferencia)
+const selectorModelo = document.getElementById('modelo') //SE AGREGAN LAS OPCIONES DE AVION
+aviones.forEach((avion, indice) => { //RECORRE EL ARRAY, SE UTILIZA EL INDICE DE CADA UNO Y SE MUESTRA EL NOMBRE DEL AVIÓN EN LA OPCIÓN DEL HTML
+    const opcion = document.createElement('option') 
+    opcion.value = indice
+    opcion.textContent = avion.modelo
+    selectorModelo.appendChild(opcion)
+})
+
+// CALCULAR EXTRA DE PISTA POR PESO
+function extraPorPeso(base, peso) {
+    if (peso <= 70000) {
         return 0
-    let exceso = peso - pesoReferencia
-    let porcentajeExtra = (exceso / 1000) * 0.01
-        return base * porcentajeExtra
+    } else {
+        return base * ((peso - 70000) / 1000) * 0.01
+    }
 }
 
-//FUNCION PARA CALCULAR EXTRA FED PISTA SEGUN TEMPERATURA AMBIENTE, SE TOMA EN CUENTA A PARTIR DE LOS 30°c, A PARTIR DE AHÍ SUMA 1% CADA UN GRADO A LA PISTA BASE
-function ajustarPorTemperatura(longitud, temperatura) {
-    const tempReferencia = 30
-    if (temperatura <= tempReferencia)
+// CALCULAR EXTRA DE PISTA POR TEMPERATURA
+function extraPorTemperatura(base, temperatura) {
+    if (temperatura <= 30) {
         return 0
-    let exceso = temperatura - tempReferencia
-    let porcentajeExtra = exceso * 0.01
-        return longitud * porcentajeExtra
+    } else {
+        return base * (temperatura - 30) * 0.01
+    }
 }
 
-//FUNCION PARA CALCULAR EL EXTRA DE PISTA SEGUN LA ALTITUD A LA QUE SE ENCUENTRA LA PISTA SOBRE EL NIVEL DEL MAR, CADA 300M SUMA 4% A LA PISTA BASE
-function ajustePorAltitud (longitud, altitud) {
-    let factor = 1 + (0.04 * (altitud / 300)) //SE CREA LA VARIABLE FACTOR PARA QUE EN ESTA SE ALOJES EL 100% DE LA PISTA BASE MAS EL % EXTRA (EJEMPLO SE NECESITA EL 114% DE LA PISTA)
-        return longitud * (factor - 1) //SE QUITA EL FACTOR 1 PARA QUE SÓLO QUEDE EL EXTRA DE LA PISTA NECESARIO, LUEGO PASARLO A METROS Y PODER PONERLO EN EL DESGLOSE FINAL 
+// CALCULAR PISTA EXTRA POR ALTITUD
+function extraPorAltitud(base, altitud) {
+    return base * 0.04 * (altitud / 300)
 }
 
-//FUNCION PARA EVALUAR SI LA PISTA QUE INGRESAMOS ES SUFICIENTE PARA EL DESPEGUE CON LAS CONDICIONES INGRESADAS
-function esPistaSuficiente (longitudRequerida, pistaDisponible) {
-    if (pistaDisponible >= longitudRequerida)
-        return "La pista cumple con la longitud para el despegue."
-    return "La pista no cumple con la longitud. No se puede despegar."
+// CHEQUEAR SI LA PISTA ES SUFICIENTE
+function evaluarPista(longitudNecesaria, longitudDisponible) {
+    if (longitudDisponible >= longitudNecesaria) {
+        return 'Pista suficiente'
+    } else {
+        return 'Pista insuficiente'
+    }
 }
 
-//LA BIENVENIDA CON ALERT Y DETALLES 
-alert ("Bienvenido al simulador de performance de despegue para los aviones comerciales")
+// CUADRO DE RESULTADO FINAL CON EL RESUMEN DEL CALCULO
+function mostrarResultado(avion, peso, temperatura, altitud, pistaDisponible, pistaTotal) {
+    let mensaje = 'Modelo: ' + avion.modelo + '\n'
+    mensaje += 'Pista base: ' + avion.pistaBase + ' m\n'
+    mensaje += 'Extra por peso: +' + Math.round(extraPorPeso(avion.pistaBase, peso)) + ' m\n'
+    mensaje += 'Extra por temperatura: +' + Math.round(extraPorTemperatura(avion.pistaBase, temperatura)) + ' m\n'
+    mensaje += 'Extra por altitud: +' + Math.round(extraPorAltitud(avion.pistaBase, altitud)) + ' m\n'
+    mensaje += 'Pista necesaria: ' + Math.round(pistaTotal) + ' m\n'
+    mensaje += 'Pista disponible: ' + pistaDisponible + ' m\n'
+    mensaje += evaluarPista(pistaTotal, pistaDisponible)
+    return mensaje
+}
 
-//MOSTRAR AVIONES DISPONIBLE Y PASAR LA OPCION DEL USUARIO AL INDICE PARA SABER CUAL OPCION ELIGIÓ
-let seleccion = prompt(mostrarModelos(aviones))
-let indice = parseInt(seleccion)
-const avionSeleccionado = aviones[indice]
+// ACÁ SE GUARDA LAS REFERENCIA DEL FORMULARIO Y DEL CUADRO QUE LO CONTIENE PARA MOSTRAR EL RESULTADO
+const formulario = document.getElementById('formulario')
+const divResultado = document.getElementById('resultado')
 
-//PROMP PARA QUE EL USUARIO PUEDA INGRESAR LAS VARIABLES DEL AVION Y LA PISTA
-let peso = parseInt(prompt("Ingresar el peso actual del avion en KG, por ejemplo: un A320 full carga suele pesar 78000KG"))
-let temperatura = parseInt(prompt("Ingrese la temperatura ambiente en °C (La temperatura se toma en consideración a partir de los 30°C)."))
-let altitud = parseInt(prompt("Ingrese la altitud del aereopuerto sobre el nivel del mar del cual despegará el avion(EJ: el aereopuerto comercial mas alto está aprox a 4000M sobre nivel de mar"))
-let pistaDisponible = parseInt(prompt("Ingresa la longitud de la pista en la cual quieres que despegue el avion (EJ: suelen ir desde los 1500M de longitud a los 4000M)"))
+formulario.addEventListener('submit', evento => {
+    evento.preventDefault() //NO SE SI HAY OTRA FORMA DE HACERLO PERO CADA VEZ QUE LE DABA CALCULAR EN EL FORMULARIO, SE RECARGABA LA PAGINA Y BORRABA LOS DATOS, NO SE SI ES LA FORMA CORRECTA PARA QUE NO SE ACTUALICE O ES HARCODEAR (https://developer.mozilla.org/es/docs/Web/API/Event/preventDefault)
 
-//CLCULOS INDIVIDUALES, CADA EXTRA SE CALCULA SOBRE LA PISTA BASE PARA CADA MODELO DE AVION
-let base = avionSeleccionado.longitudBase
-let ajustePeso = ajustarPorPeso(base, peso)
-let ajusteTemperatura = ajustarPorTemperatura(base, temperatura)
-let ajusteAltitud = ajustePorAltitud(base, altitud)
-let longitudRequerida = base + ajustePeso + ajusteTemperatura + ajusteAltitud
+//SE LEEN LOS VALORES INGRESADOS, SE PASAN A NUMERO Y SE UTILIZAN PARA LOS CALCULOS, TAMBIÉN SE SELECCIONA EL AVION Y SE PASA AL INDICE PARA SABER CUAL ELIGIÓ
+    const avion = aviones[selectorModelo.value]
+    const peso = parseFloat(document.getElementById('peso').value)
+    const temperatura = parseFloat(document.getElementById('temperatura').value)
+    const altitud = parseFloat(document.getElementById('altitud').value)
+    const pista = parseFloat(document.getElementById('pista').value)
 
-alert("El avion " + avionSeleccionado.modelo + " necesita aproximadamente " + Math.round(longitudRequerida) + " metros para despegar ")
-alert(esPistaSuficiente(longitudRequerida, pistaDisponible))
+// SE CORRIGE LO INDICADO EN LA ENTREGA PASADA PARA QUE EL USUARIO PUEDA INGRESAR DATOS RAZONABLES 
+    if (pista < 1000 || pista > 5000) {
+        divResultado.textContent = 'La pista debe tener entre 1000 y 5000 metros'
+        return
+    }
 
-let mensajeFinal = "Desglose de los calculos:\n" +
-                    "-Modelo selecionado:" + avionSeleccionado.modelo + "\n" +
-                    "-Pista base minima para el modelo seleccionado: " + base + "m \n" +
-                    "-Ajuste por peso: (" + peso + "Kg) " + Math.round(ajustePeso) + "m\n"+
-                    "-Ajuste por temperatura: (" + temperatura + "°C): " + Math.round(ajusteTemperatura) + "m\n"+
-                    "-Ajuste por altitud: (" + altitud + " m): " + Math.round(ajusteAltitud) + "m\n"+
-                    "-Longitud final necesaria: " + Math.round(longitudRequerida) + "m\n"+
-                    "-Pista disponible ingresada: " + pistaDisponible + "m"
+    if (temperatura < -20 || temperatura > 50) {
+        divResultado.textContent = 'La temperatura debe estar entre -20°C y 50°C'
+        return
+    }
 
-alert(mensajeFinal)
+    if (altitud < 0 || altitud > 6000) {
+        divResultado.textContent = 'La altitud debe estar entre 0 y 6000 metros'
+        return
+    }
+
+    const base = avion.pistaBase
+    const pistaTotal = base + extraPorPeso(base, peso) + extraPorTemperatura(base, temperatura) + extraPorAltitud(base, altitud)
+
+    divResultado.textContent = mostrarResultado(avion, peso, temperatura, altitud, pista, pistaTotal)
+})
+
+// BOTON PARA GUARDAR EN EL ALMACENAMIENTO LOCAL (NO SABÍA COMO IMPLEMENTARLO Y SE GUARDA LOS DATOS EN LOCAL Y EN CASO DE ABRIR EN OTRAS PESTAÑA Y DAR CARGAR MUESTRA LOS RESULTADOS GUARDADOS ANTERIORMENTE)
+document.getElementById('guardar').addEventListener('click', () => {
+    localStorage.setItem('modelo', selectorModelo.value)
+    localStorage.setItem('peso', document.getElementById('peso').value)
+    localStorage.setItem('temperatura', document.getElementById('temperatura').value)
+    localStorage.setItem('altitud', document.getElementById('altitud').value)
+    localStorage.setItem('pista', document.getElementById('pista').value)
+})
+
+// BOTÓN PARA CARGAR LOS DATOS PREVIAMENTE GUARDADOS DESDE EL ALMACENAMIENTO LOCAL
+document.getElementById('cargar').addEventListener('click', () => {
+    const modelo = localStorage.getItem('modelo')
+    const peso = localStorage.getItem('peso')
+    const temperatura = localStorage.getItem('temperatura')
+    const altitud = localStorage.getItem('altitud')
+    const pista = localStorage.getItem('pista')
+
+//SE VERIFICA SI EN EL ALMACENAMIENTO LOCAL ESTÁ ALOJADO EL DATO, QUE SEA DIFERENTE A NULL, SI ESTÁ EL DATO SE PADA COMO VALOR AL FORMULARIO CON EL BOTÓN CARGAR
+    if (modelo !== null) selectorModelo.value = modelo
+    if (peso !== null) document.getElementById('peso').value = peso
+    if (temperatura !== null) document.getElementById('temperatura').value = temperatura
+    if (altitud !== null) document.getElementById('altitud').value = altitud
+    if (pista !== null) document.getElementById('pista').value = pista
+})
+
+// BORRA LOS DATOS Y BORRA EL FORMULARIO
+document.getElementById('borrar').addEventListener('click', () => {
+    localStorage.clear()
+    divResultado.textContent = ''
+})
