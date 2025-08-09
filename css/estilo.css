@@ -1,3 +1,8 @@
+/* CSS BASICO */
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
     max-width: 400px;
@@ -22,6 +27,7 @@ select, input, button {
     padding: 8px;
     margin-top: 5px;
     font-size: 1em;
+    box-sizing: border-box; 
 }
 
 button {
@@ -30,6 +36,7 @@ button {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: background 0.3s ease;
 }
 
 button:hover {
@@ -50,6 +57,8 @@ button:hover {
     display: flex;
     gap: 10px;
 }
+
 .botones button {
     flex: 1;
+    min-width: 0;
 }

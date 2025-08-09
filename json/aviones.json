@@ -1,0 +1,5 @@
+[
+    { "modelo": "A320", "pistaBase": 2100 },
+    { "modelo": "B737", "pistaBase": 2200 },
+    { "modelo": "A350", "pistaBase": 2600 }
+]

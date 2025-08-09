@@ -1,31 +1,39 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Simulador de despegue</title>
-    <link rel="stylesheet" href="css/estilo.css">
+    <link rel="stylesheet" href="css/estilo.css" />
+    <!--SWIT ALERT-->
+    <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!--LOS DOS JS-->
+    <script defer src="./js/data.js"></script>
     <script defer src="./js/main.js"></script>
 </head>
 <body>
     <h1>Simulador del rendimiento de despegue.</h1>
-    <p>Entrega 2. Damian.V. Soy aficionado a la aviacion. La entrega trata de un simulador de rendimiento para el despegue de un avión, el simulador toma en cuenta peso, temperatura y longitud de la pista, los modelos seleccionadon son el A320, A350 Boing 737. 
+    <p>
+        Entrega 3. Damian.V. Soy aficionado a la aviacion. La entrega trata de un simulador de rendimiento para el despegue de un avión,
+        el simulador toma en cuenta peso, temperatura y longitud de la pista,
+        los modelos seleccionadon son el A320, A350 Boing 737.
     </p>
+
     <form id="formulario">
         <label for="modelo">Modelo de avión:</label>
         <select id="modelo" required></select>
 
         <label for="peso">Peso actual (kg):</label>
-        <input type="number" id="peso" required min="0" placeholder="Ej: 78000">
+        <input type="number" id="peso" required min="0" placeholder="50000 a 280000" />
 
         <label for="temperatura">Temperatura ambiente (°C):</label>
-        <input type="number" id="temperatura" required placeholder="Ej: 35">
+        <input type="number" id="temperatura" required placeholder="-20 a 50" />
 
         <label for="altitud">Altitud del aeropuerto (m):</label>
-        <input type="number" id="altitud" required min="0" placeholder="Ej: 1500">
+        <input type="number" id="altitud" required min="0" placeholder="0 a 6000" />
 
         <label for="pista">Longitud de pista disponible (m):</label>
-        <input type="number" id="pista" required placeholder="Ej: 3000">
+        <input type="number" id="pista" required placeholder="1000 a 5000" />
 
         <button type="submit">Calcular</button>
     </form>
@@ -33,10 +41,10 @@
     <div id="resultado"></div>
 
     <div class="botones">
-        <button id="guardar">Guardar</button>
-        <button id="cargar">Cargar</button>
-        <button id="borrar">Borrar</button>
+        <button id="guardar" type="button">Guardar</button>
+        <button id="cargar" type="button">Cargar</button>
+        <button id="borrar" type="button">Borrar</button>
     </div>
-
 </body>
 </html>
+
